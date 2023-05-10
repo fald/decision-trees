@@ -6,15 +6,21 @@ def calculate_entropy(p1):
     By convention, log(0) is treated as 0.
 
     Args:
-        p1 (float): The ratio of positive cases.
+        p1 (float): In range [0, 1]. The ratio of positive cases.
         
     Returns:
         H (float): The calculated entropy.
     """
-    
-    if p1 == 1 or p1 == 0:
-        return 0
-    H = -p1 * math.log(p1, 2) - (1 - p1) * math.log(1 - p1, 2)
+    if p1 < 0 or p1 > 1:
+        raise ValueError("The probability must be between 0% and 100%")
+
+    # Basic entropy
+    try:
+        H = -p1 * math.log(p1, 2) - (1 - p1) * math.log(1 - p1, 2)
+    except ValueError:
+        # Convention, if p1 or 1-p1 are 0
+        H = 0
+        
     return H
     
 
