@@ -103,6 +103,35 @@ def information_gain(data: pd.DataFrame, split_index: int, label_index: int =- 1
     
     return calculate_entropy(p_root) - (wl * calculate_entropy(pl) + (wr * calculate_entropy(pr)))
 
+def choose_feature(data: pd.DataFrame, label_index: int = -1) -> int:
+    """
+    Return the index of the best feature to split a dataset on.
+    Goes over each feature in the dataset, calculating information gain for
+    splitting on each feature and then selecting the one with the highest gain.
+
+    Args:
+        data (pd.DataFrame): The dataset you wish to split
+        label_index (int, optional): The index of the label column. Defaults to -1.
+
+    Returns:
+        int: The index of the feature to split on that results in the largest information gain
+    """
+    # No need for cleverness, I am a dumbass and it's not like this is a proper library anyway!
+    num_cols = len(data.columns)
+    if label_index == -1:
+        label_index = num_cols - 1
+    
+    # gain, index, data
+    curr_best = (0, None)
+    for i in range(num_cols):
+        if i != label_index:
+            ig = information_gain(data, i, label_index)
+            print(i, ig)
+            if ig > curr_best[0]:
+                curr_best = (ig, i)
+                
+    return curr_best[1]
+
 
 if __name__ == "__main__":
-    print(information_gain(sample_data, 0))
+    print(choose_feature(sample_data))
