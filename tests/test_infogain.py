@@ -28,6 +28,9 @@ class TestInfoGain(unittest.TestCase):
         l, r = main.split_data(main.sample_data, 1)
         self.assertEqual(len(l) +  len(r), 10)
         self.assertTrue(len(l) == 7 or len(r) == 7)
+        
+    def test_information_gain(self):
+        self.assertAlmostEqual(main.information_gain(main.sample_data, 0), 0.28, 2)
     
 
 if __name__ == "__main__":
