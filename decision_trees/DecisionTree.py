@@ -1,4 +1,6 @@
 import math
+import numpy as np
+from collections import Counter
 import Node
 
 class DecisionTree:
@@ -20,8 +22,15 @@ class DecisionTree:
     def predict(self):
         pass
     
-    def _grow_tree(self, X, y):
+    def _grow_tree(self, X, y, depth: int = 0):
+        n_samples, n_feats = X.shape
+        n_labels = len(np.unique(y))
+        
         # Check stopping criteria
+        if (depth >= self.max_depth or n_labels == 1 or n_samples < self.min_samples_split):
+            # if n_labels is 1, trivial, else, go for most common
+            leaf_value = self._most_common_label(y)
+            return Node(value = leaf_value)
         
         # Find the best split
         
@@ -30,8 +39,13 @@ class DecisionTree:
         # Recursively call this method on the children
         pass
     
+    def _most_common_label(y):
+        # TODO: Much easier with 1/0 or T/F without the collections import, maybe data clean to get to that stage. Then again, who gaf?
+        counter = Counter(y)
+        return counter.most_common(1)[0][0]
+        
     # TODO: Does this fit here, from a design perspective? Not really a dec. tree thing uniquely. Maybe a helper function file instead.
-    def calculate_entropy(self, p: float) -> float:
+    def _calculate_entropy(self, p: float) -> float:
         """
         Calculates the entropy of some probability, p. The negative case is implicit.
         By convention, log(0) is treated as 0.
