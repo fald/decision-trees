@@ -21,7 +21,7 @@ def calculate_entropy(p1: float) -> float:
         p1 (float): In range [0, 1]. The ratio of positive cases.
         
     Returns:
-        H (float): The calculated entropy.
+        (float): The calculated entropy.
         
     Raises:
         ValueError: When the ratio of positive cases does not fall into the range of [0, 1]
