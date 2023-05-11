@@ -4,7 +4,7 @@ from collections import Counter
 import Node
 
 class DecisionTree:
-    # TODO: Cleanup docstrings and typehints
+    # TODO: Cleanup docstrings and typehints as well as general style guide
     # A binary decision tree structure
     def __init__(self, min_samples_split: int = 2, max_depth: int = 100, n_features: int = None, root: Node = None) -> None:
         # Stopping criteria
@@ -63,22 +63,37 @@ class DecisionTree:
         
         return curr_best[1:]
     
-    def _split_data(self, X, y, split_index, threshold):
-        L, R = None, None
-        
+    def _split_data(self, X_col, threshold):
+        # L, R = X_col[X_col[:] == threshold], X_col[X_col[:] != threshold]
+        # ^ Clumsy, np has argwhere!
+        L = np.argwhere(X_col <= threshold).flatten()
+        R = np.argwhere(X_col > threshold).flatten()
+        # indices!
         return L, R
             
-    def _information_gain(self, X, y, split_index, split_threshold):
+    def _information_gain(self, X_col, y, split_threshold):
         # X_col = X[:, split_index]
+        
         # Fraction of examples in root with meeting the threshold
         # p_root = None # Not needed with the new entropy method
         root_entropy = self._entropy(y)
         
         # Split nodes
-        L, R = self._split_data()
+        L, R = self._split_data(X_col, split_threshold)
+        if (len(L) == 0 or len(R) == 0):
+            # No info gain
+            return 0
         
         # Weighted averages of the split nodes' entropies
-        pass
+        len_y, len_l, len_r = len(y), len(L), len(R)
+        w_l, w_r = len_l / len_y, len_r / len_y
+        
+        # pl (float): The fraction of examples in the left subtree that have a positive label
+        # pr (float): The fraction of examples in the right subtree that have a positive label
+        # wl (float): The fraction of examples from the root node that end up in the left subtree
+        # wr (float): The fraction of examples from the root node that end up in the right subtree
+        # Lots of refactoring from the main file, maybe plan better, nerd.
+        return root_entropy - (w_l * self._entropy(y[L]) + w_r * self._entropy(y[R]))
     
     def _entropy(self, y):
         # This works better than _calculate_entropy below as you can just feed in the column!
@@ -87,7 +102,7 @@ class DecisionTree:
         ps = hist / len(y)
         # TODO: double check this - it feels wrong or like it doesn't catch errors
         return np.sum(-p * math.log(p, 2) - (1 - p) * math.log(1 - p, 2) for p in ps if p not in (0, 1)) # else 0) (handled by just not including it)
-            
+
     # TODO: Does this fit here, from a design perspective? Not really a dec. tree thing uniquely. Maybe a helper function file instead.
     def _calculate_entropy(self, p: float) -> float:
         """
