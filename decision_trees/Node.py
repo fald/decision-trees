@@ -11,3 +11,7 @@ class Node:
         # If it's a leaf node, replace with most common class.
         self.value = None
         
+        def is_leaf_node(self):
+            return self.value is not None
+        
+        
