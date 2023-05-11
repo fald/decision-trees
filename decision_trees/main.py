@@ -4,8 +4,13 @@ import pandas as pd
 
 
 # "Scratch" - no ML modules, at least!
+# TODO: Bunch of inefficient recalcs
+# TODO: Started with docstrings and unittests and then just kinda stopped
+# TODO: Refactor for n-ary trees instead of just binary
+# TODO: How about actually making a tree structure, dummy?
 
 sample_data = pd.read_csv("data/sample_data.csv")
+cols = sample_data.columns
 
 def calculate_entropy(p1: float) -> float:
     """
@@ -44,7 +49,9 @@ def count_positives(data: pd.DataFrame, label_index: int = -1) -> int:
     Returns:
         int: The number of positive examples in the dataset.
     """
-    return sum(data[data.columns[label_index]])
+    # TODO: refactor lol
+    cols = data.columns
+    return sum(data[cols[label_index]])
 
 def split_data(data: pd.DataFrame, split_index: int) -> Tuple[pd.DataFrame]:
     """
@@ -117,7 +124,10 @@ def choose_feature(data: pd.DataFrame, label_index: int = -1) -> int:
         int: The index of the feature to split on that results in the largest information gain
     """
     # No need for cleverness, I am a dumbass and it's not like this is a proper library anyway!
-    num_cols = len(data.columns)
+    cols = data.columns
+    num_cols = len(cols)
+    label = cols[label_index]
+    
     if label_index == -1:
         label_index = num_cols - 1
     
