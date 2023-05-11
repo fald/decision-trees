@@ -1,30 +1,31 @@
 import math
 import numpy as np
 from collections import Counter
-import Node
+from typing import Any
+from Node import Node
 
 class DecisionTree:
     # TODO: Cleanup docstrings and typehints as well as general style guide
     # A binary decision tree structure
-    def __init__(self, min_samples_split: int = 2, max_depth: int = 100, n_features: int = None, root: Node = None) -> None:
+    def __init__(self, min_samples_split: int = 2, max_depth: int = 100, n_features: int = None) -> None:
         # Stopping criteria
         self.min_samples_split = min_samples_split
         self.max_depth = max_depth
         self.n_features = n_features # May only want to use a subset of features
         # self.data = data # Same logic as in node, don't need dataset stored in here past training, waste of memory.
-        self.root = root
+        self.root = None
     
-    def fit(self, X, y): # Hey look, a better idea is to have the labels split off from the beginning, like every fucking lesson you've looked at!
+    def fit(self, X: np.ndarray, y: np.ndarray) -> None: # Hey look, a better idea is to have the labels split off from the beginning, like every fucking lesson you've looked at!
         # TODO: better error check/exception raise
         self.n_features = X.shape[1] if not self.n_features else min(X.shape[1], self.n_features)
         self.root = self._grow_tree(X, y)
     
-    def predict(self, X_test):
+    def predict(self, X_test: np.ndarray) -> np.ndarray:
         # For each example, traverse the tree.
         # TODO: Surely this can be vectorized >_>
-        return np.array([self._traverse_tree(x) for x in X_test])
+        return np.array([self._traverse_tree(x, self.root) for x in X_test])
     
-    def _grow_tree(self, X, y, depth: int = 0):
+    def _grow_tree(self, X: np.ndarray, y: np.ndarray, depth: int = 0) -> Node:
         n_samples, n_feats = X.shape
         n_labels = len(np.unique(y))
         
@@ -45,19 +46,15 @@ class DecisionTree:
         L, R = self._split_data(X[:, best_feature], best_threshold)
         left = self._grow_tree(X[L, :], y[L], depth + 1)
         right = self._grow_tree(X[R, :], y[R], depth + 1)
-        root = Node(best_feature, best_threshold, left, right)
-        # TODO: This might be unnecessary.
-        if self.root is None:
-            self.root = root
-        return root
+        return Node(best_feature, best_threshold, left, right)
     
-    def _most_common_label(self, y):
+    def _most_common_label(self, y: np.ndarray) -> int:
         # TODO: Much easier with 1/0 or T/F without the collections import, maybe data clean to get to that stage. Then again, who gaf?
         counter = Counter(y)
         return counter.most_common(1)[0][0]
     
     # Feature indices used when randomizing feats for use in random forests
-    def _choose_feature(self, X, y, feature_indices):
+    def _choose_feature(self, X: np.ndarray, y: np.ndarray, feature_indices: np.ndarray) -> tuple:
         # gain, index, threshold
         curr_best = (-1, None, None)
         for feature_index in feature_indices:
@@ -71,7 +68,7 @@ class DecisionTree:
         
         return curr_best[1:]
     
-    def _split_data(self, X_col, threshold):
+    def _split_data(self, X_col: np.ndarray, threshold: Any) -> tuple:
         # L, R = X_col[X_col[:] == threshold], X_col[X_col[:] != threshold]
         # ^ Clumsy, np has argwhere!
         L = np.argwhere(X_col <= threshold).flatten()
