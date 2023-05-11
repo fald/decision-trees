@@ -83,20 +83,26 @@ def information_gain(data: pd.DataFrame, split_index: int, label_index: int =- 1
     
     Raises:
     """
+    # Little overhead, but still no need to recalc so many times
+    len_data = len(data)
     
     # p_root (float): The fraction of examples in the root node with a positive label
     # ...I don't like how this looks
-    p_root = count_positives(data) / len(data)
+    p_root = count_positives(data) / len_data
     
     # pl (float): The fraction of examples in the left subtree that have a positive label
     # pr (float): The fraction of examples in the right subtree that have a positive label
     # wl (float): The fraction of examples from the root node that end up in the left subtree
     # wr (float): The fraction of examples from the root node that end up in the right subtree
     l, r = split_data(data, split_index)
+    len_l, len_r = len(l), len(r)
+    pl = count_positives(l) / len_l
+    pr = count_positives(r) / len_r
+    wl = len_l / len_data
+    wr = len_r / len_data
     
-    # ig = calculate_entropy(p_root) - (wl * calculate_entropy(pl)) + (wr * calculate_entropy(pr))
-    
-    return
+    return calculate_entropy(p_root) - (wl * calculate_entropy(pl)) + (wr * calculate_entropy(pr))
+
 
 if __name__ == "__main__":
     pass
