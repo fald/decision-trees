@@ -29,10 +29,14 @@ class DecisionTree:
         # Check stopping criteria
         if (depth >= self.max_depth or n_labels == 1 or n_samples < self.min_samples_split):
             # if n_labels is 1, trivial, else, go for most common
+            # Probably not worth splitting to avoid using the method for gains
             leaf_value = self._most_common_label(y)
             return Node(value = leaf_value)
         
+        feature_indices = np.random.choice(n_feats, self.n_features, replace = False)
+        
         # Find the best split
+        best_feature, best_threshold = self._choose_feature(X, y, feature_indices)
         
         # Create child nodes
         
@@ -43,7 +47,28 @@ class DecisionTree:
         # TODO: Much easier with 1/0 or T/F without the collections import, maybe data clean to get to that stage. Then again, who gaf?
         counter = Counter(y)
         return counter.most_common(1)[0][0]
+    
+    # Feature indices used when randomizing feats for use in random forests
+    def _choose_feature(self, X, y, feature_indices):
+        # gain, index, threshold
+        curr_best = (-1, None, None)
+        for feature_index in feature_indices:
+            X_col = X[:, feature_index]
+            # TODO: This only really works with non-continuous data, or limited classes. It does limit splits to binary though, which is nice (and also correct, but fight the power, maaaan)
+            thresholds = np.unique(X_col)
+            for thresh in thresholds: # lol mixing and matching full and shorthand
+                IG = self._information_gain(X_col, y, thresh)
+                if (IG > curr_best[0]):
+                    curr_best = (IG, feature_index, thresh)
         
+        return curr_best[1:]
+    
+    def _split_data(*args):
+        pass
+            
+    def _information_gain(*args):
+        pass
+    
     # TODO: Does this fit here, from a design perspective? Not really a dec. tree thing uniquely. Maybe a helper function file instead.
     def _calculate_entropy(self, p: float) -> float:
         """
