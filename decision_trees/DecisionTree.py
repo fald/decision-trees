@@ -19,8 +19,10 @@ class DecisionTree:
         self.n_features = X.shape[1] if not self.n_features else min(X.shape[1], self.n_features)
         self.root = self._grow_tree(X, y)
     
-    def predict(self):
-        pass
+    def predict(self, X_test):
+        # For each example, traverse the tree.
+        # TODO: Surely this can be vectorized >_>
+        return np.array([self._traverse_tree(x) for x in X_test])
     
     def _grow_tree(self, X, y, depth: int = 0):
         n_samples, n_feats = X.shape
@@ -38,10 +40,16 @@ class DecisionTree:
         # Find the best split
         best_feature, best_threshold = self._choose_feature(X, y, feature_indices)
         
-        # Create child nodes
-        
-        # Recursively call this method on the children
-        pass
+        # Create child nodes and recursively call method
+        # Don't like that I'm splitting on this feature a second time, but I guess nothing to be done about it...or is there?
+        L, R = self._split_data(X[:, best_feature], best_threshold)
+        left = self._grow_tree(X[L, :], y[L], depth + 1)
+        right = self._grow_tree(X[R, :], y[R], depth + 1)
+        root = Node(best_feature, best_threshold, left, right)
+        # TODO: This might be unnecessary.
+        if self.root is None:
+            self.root = root
+        return root
     
     def _most_common_label(self, y):
         # TODO: Much easier with 1/0 or T/F without the collections import, maybe data clean to get to that stage. Then again, who gaf?
@@ -128,4 +136,15 @@ class DecisionTree:
             H = 0
             
         return H
+    
+    def _traverse_tree(self, x, node):
+        # Recursive!
+        if (node.is_leaf_node()):
+            return node.value
+        else:
+            # Grab the feature and threshold, if matches, left, else right
+            if (x[node.feature] <= node.threshold):
+                return self._traverse_tree(x, node.left)
+            else:
+                return self._traverse_tree(x, node.right)
     
