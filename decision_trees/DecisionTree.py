@@ -43,7 +43,7 @@ class DecisionTree:
         # Recursively call this method on the children
         pass
     
-    def _most_common_label(y):
+    def _most_common_label(self, y):
         # TODO: Much easier with 1/0 or T/F without the collections import, maybe data clean to get to that stage. Then again, who gaf?
         counter = Counter(y)
         return counter.most_common(1)[0][0]
@@ -63,12 +63,31 @@ class DecisionTree:
         
         return curr_best[1:]
     
-    def _split_data(*args):
-        pass
+    def _split_data(self, X, y, split_index, threshold):
+        L, R = None, None
+        
+        return L, R
             
-    def _information_gain(*args):
+    def _information_gain(self, X, y, split_index, split_threshold):
+        # X_col = X[:, split_index]
+        # Fraction of examples in root with meeting the threshold
+        # p_root = None # Not needed with the new entropy method
+        root_entropy = self._entropy(y)
+        
+        # Split nodes
+        L, R = self._split_data()
+        
+        # Weighted averages of the split nodes' entropies
         pass
     
+    def _entropy(self, y):
+        # This works better than _calculate_entropy below as you can just feed in the column!
+        # Thanks, AbacusAI channel
+        hist = np.bincount(y)
+        ps = hist / len(y)
+        # TODO: double check this - it feels wrong or like it doesn't catch errors
+        return np.sum(-p * math.log(p, 2) - (1 - p) * math.log(1 - p, 2) for p in ps if p not in (0, 1)) # else 0) (handled by just not including it)
+            
     # TODO: Does this fit here, from a design perspective? Not really a dec. tree thing uniquely. Maybe a helper function file instead.
     def _calculate_entropy(self, p: float) -> float:
         """
