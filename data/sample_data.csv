@@ -1,0 +1,11 @@
+ear,face,whiskers,cat
+pointy,round,present,1
+pointy,round,present,1
+pointy,round,present,1
+pointy,round,absent,1
+floppy,notround,absent,1
+pointy,round,present,0
+floppy,round,absent,0
+floppy,round,absent,0
+floppy,notround,absent,0
+floppy,notround,absent,0
